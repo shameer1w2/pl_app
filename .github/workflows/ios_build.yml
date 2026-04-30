@@ -24,11 +24,23 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Build IPA (Unsigned)
-        run: flutter build ipa --no-codesign
+      - name: Build iOS (Unsigned)
+        run: flutter build ios --no-codesign --release
+
+      - name: Package IPA
+        run: |
+          # Create Payload directory structure
+          mkdir -p Payload
+          cp -r build/ios/iphoneos/Runner.app Payload/
+          
+          # Zip into IPA
+          zip -r GymApp.ipa Payload
+          
+          echo "IPA created successfully:"
+          ls -lh GymApp.ipa
 
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
           name: gym-app-ipa
-          path: build/ios/ipa/*.ipa
+          path: GymApp.ipa
