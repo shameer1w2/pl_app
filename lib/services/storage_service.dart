@@ -41,7 +41,20 @@ class StorageService {
     return fileId;
   }
 
-  // ─── Get video stream URL ─────────────────────────────────────────────────
+  // ─── Download video to local temp file (authenticated via SDK session) ────
+
+  Future<File> downloadVideo(String fileId) async {
+    final bytes = await _storage.getFileDownload(
+      bucketId: AppwriteConstants.liftVideosBucketId,
+      fileId: fileId,
+    );
+
+    final file = File('${Directory.systemTemp.path}/liftlog_$fileId.mp4');
+    await file.writeAsBytes(bytes);
+    return file;
+  }
+
+  // ─── Get video stream URL (kept for reference, requires public bucket) ────
 
   String getVideoStreamUrl(String fileId) {
     return '${AppwriteConstants.endpoint}/storage/buckets/'

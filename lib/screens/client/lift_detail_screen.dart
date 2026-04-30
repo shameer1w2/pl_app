@@ -2,10 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_player/video_player.dart';
-import '../../core/constants.dart';
 import '../../core/theme.dart';
 import '../../providers/app_providers.dart';
-import '../../services/storage_service.dart';
 
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -26,14 +24,9 @@ class _LiftDetailScreenState extends ConsumerState<LiftDetailScreen> {
   Future<void> _initVideo(String fileId) async {
     try {
       final storageService = ref.read(storageServiceProvider);
-      final url = storageService.getVideoStreamUrl(fileId);
+      final videoFile = await storageService.downloadVideo(fileId);
 
-      _videoController = VideoPlayerController.networkUrl(
-        Uri.parse(url),
-        httpHeaders: {
-          'X-Appwrite-Project': AppwriteConstants.projectId,
-        },
-      );
+      _videoController = VideoPlayerController.file(videoFile);
       
       await _videoController!.initialize();
       _videoController!.addListener(() {

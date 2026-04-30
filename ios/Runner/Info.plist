@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>LiftLog needs camera access to record your lifts for coach review.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>LiftLog needs microphone access to record audio with your lift videos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>LiftLog needs photo library access to select existing lift videos.</string>
 </dict>
 </plist>
