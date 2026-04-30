@@ -67,10 +67,23 @@ class _UploadLiftScreenState extends ConsumerState<UploadLiftScreen> {
     }
     if (!_formKey.currentState!.validate()) return;
 
+    final user = ref.read(authProvider).value!;
+    if (user.coachId == null || user.coachId!.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No coach assigned. Ask your coach for their ID.'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return;
+    }
+
     setState(() => _uploading = true);
 
     try {
-      final user = ref.read(authProvider).value!;
       await ref.read(liftServiceProvider).uploadLift(
             clientId: user.id,
             coachId: user.coachId!,
@@ -260,8 +273,11 @@ class _UploadLiftScreenState extends ConsumerState<UploadLiftScreen> {
                         hintText: 'Weight',
                         suffixText: 'kg',
                       ),
-                      validator: (v) =>
-                          v == null || v.isEmpty ? 'Required' : null,
+                      validator: (v) {
+                        if (v == null || v.isEmpty) return 'Required';
+                        if (double.tryParse(v) == null) return 'Invalid';
+                        return null;
+                      },
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -270,8 +286,11 @@ class _UploadLiftScreenState extends ConsumerState<UploadLiftScreen> {
                       controller: _repsCtrl,
                       keyboardType: TextInputType.number,
                       decoration: const InputDecoration(hintText: 'Reps'),
-                      validator: (v) =>
-                          v == null || v.isEmpty ? 'Required' : null,
+                      validator: (v) {
+                        if (v == null || v.isEmpty) return 'Required';
+                        if (int.tryParse(v) == null) return 'Invalid';
+                        return null;
+                      },
                     ),
                   ),
                   const SizedBox(width: 12),

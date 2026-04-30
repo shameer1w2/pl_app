@@ -15,11 +15,19 @@ import '../screens/coach/coach_lift_detail_screen.dart';
 import 'constants.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authProvider);
+  // Notify GoRouter when auth state changes WITHOUT recreating the router.
+  // Using ref.watch here would destroy and rebuild GoRouter on every auth
+  // change, resetting navigation back to the initial route (the login bug).
+  final refreshNotifier = ValueNotifier<int>(0);
+  ref.listen(authProvider, (_, __) {
+    refreshNotifier.value++;
+  });
 
   return GoRouter(
     initialLocation: AppRoutes.splash,
+    refreshListenable: refreshNotifier,
     redirect: (context, state) {
+      final authState = ref.read(authProvider);
       final user = authState.valueOrNull;
       final isOnAuth = state.matchedLocation == AppRoutes.login ||
           state.matchedLocation == AppRoutes.register ||
@@ -34,7 +42,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             : AppRoutes.login;
       }
 
-      if (user != null && isOnAuth) {
+      if (isOnAuth) {
         return user.isCoach ? AppRoutes.coachHome : AppRoutes.clientHome;
       }
 

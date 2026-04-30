@@ -6,7 +6,6 @@ import '../../core/constants.dart';
 import '../../core/theme.dart';
 import '../../providers/app_providers.dart';
 import '../../services/storage_service.dart';
-import '../../widgets/lift_stat_row.dart';
 
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -23,6 +22,7 @@ class _CoachLiftDetailScreenState
     extends ConsumerState<CoachLiftDetailScreen> {
   VideoPlayerController? _videoController;
   bool _videoInitialized = false;
+  bool _initStarted = false;
   bool _playing = false;
   bool _saving = false;
 
@@ -54,6 +54,14 @@ class _CoachLiftDetailScreenState
       );
       
       await _videoController!.initialize();
+      _videoController!.addListener(() {
+        if (mounted) {
+          final isPlaying = _videoController!.value.isPlaying;
+          if (_playing != isPlaying) {
+            setState(() => _playing = isPlaying);
+          }
+        }
+      });
       if (mounted) setState(() => _videoInitialized = true);
     } catch (e) {
       debugPrint('Video init error: $e');
@@ -127,7 +135,8 @@ class _CoachLiftDetailScreenState
             _feedbackCtrl.text = lift.feedback!;
           }
 
-          if (!_videoInitialized && _videoController == null) {
+          if (!_initStarted) {
+            _initStarted = true;
             _initVideo(lift.videoUrl);
           }
 

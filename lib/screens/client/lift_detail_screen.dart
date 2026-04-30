@@ -6,7 +6,6 @@ import '../../core/constants.dart';
 import '../../core/theme.dart';
 import '../../providers/app_providers.dart';
 import '../../services/storage_service.dart';
-import '../../widgets/lift_stat_row.dart';
 
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -21,6 +20,7 @@ class LiftDetailScreen extends ConsumerStatefulWidget {
 class _LiftDetailScreenState extends ConsumerState<LiftDetailScreen> {
   VideoPlayerController? _videoController;
   bool _videoInitialized = false;
+  bool _initStarted = false;
   bool _playing = false;
 
   Future<void> _initVideo(String fileId) async {
@@ -36,6 +36,14 @@ class _LiftDetailScreenState extends ConsumerState<LiftDetailScreen> {
       );
       
       await _videoController!.initialize();
+      _videoController!.addListener(() {
+        if (mounted) {
+          final isPlaying = _videoController!.value.isPlaying;
+          if (_playing != isPlaying) {
+            setState(() => _playing = isPlaying);
+          }
+        }
+      });
       if (mounted) setState(() => _videoInitialized = true);
     } catch (e) {
       debugPrint('Video init error: $e');
@@ -67,7 +75,8 @@ class _LiftDetailScreenState extends ConsumerState<LiftDetailScreen> {
             child: CircularProgressIndicator(color: AppTheme.primary)),
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (lift) {
-          if (!_videoInitialized && _videoController == null) {
+          if (!_initStarted) {
+            _initStarted = true;
             _initVideo(lift.videoUrl);
           }
 

@@ -12,10 +12,13 @@ import '../services/storage_service.dart';
 // ─── Appwrite Client (singleton) ──────────────────────────────────────────────
 
 final appwriteClientProvider = Provider<Client>((ref) {
-  return Client()
+  final client = Client()
     ..setEndpoint(AppwriteConstants.endpoint)
-    ..setProject(AppwriteConstants.projectId)
-    ..setSelfSigned(status: true); // remove in production
+    ..setProject(AppwriteConstants.projectId);
+  if (kDebugMode) {
+    client.setSelfSigned(status: true);
+  }
+  return client;
 });
 
 // ─── Services ─────────────────────────────────────────────────────────────────
